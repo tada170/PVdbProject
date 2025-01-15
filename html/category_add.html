@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Category</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+    <ul>
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Product</a>
+            <div class="dropdown-content">
+                <a href="/product-add">Add Product</a>
+                <a href="/products-list">Product List</a>
+            </div>
+        </li>
+    
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Category</a>
+            <div class="dropdown-content">
+                <a href="/category-add">Add Category</a>
+                <a href="/category-list">Category List</a>
+            </div>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Order</a>
+            <div class="dropdown-content">
+                <a href="/order-add">Add Order</a>
+                <a href="/user-list">User Order</a>
+                <!--                TODO: Add order list-->
+            </div>
+        </li>
+        <li><a href="/">Home</a></li>
+    </ul>
+    
+    <div class="container">
+        <h1>Add a New Category</h1>
+        <form id="addCategoryForm">
+            <div class="form-group">
+                <label for="categoryName">Category Name:</label>
+                <input type="text" id="categoryName" name="categoryName" required>
+            </div>
+            <input type="submit" value="Add Category">
+            <div class="error-message"></div>
+        </form>
+
+        <div class="success-message alert alert-success" style="display: none;">
+            Category added successfully!
+        </div>
+        <div class="error-message alert alert-danger" style="display: none;">
+            Failed to add category. Please try again.
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/script/category_add.js"></script>
+</body>
+</html>

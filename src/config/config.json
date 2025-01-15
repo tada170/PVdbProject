@@ -1,0 +1,35 @@
+{
+  "development": {
+    "username": "krasa",
+    "password": "Krasta123",
+    "database": "krasa",
+    "host": "193.85.203.188",
+    "dialect": "mssql",
+    "dialectOptions": {
+      "trustServerCertificate": true,
+      "enableArithAbort": true
+    }
+  },
+  "test": {
+    "username": "krasa",
+    "password": "Krasta123",
+    "database": "krasa",
+    "host": "193.85.203.188",
+    "dialect": "mssql",
+    "dialectOptions": {
+      "trustServerCertificate": true,
+      "enableArithAbort": true
+    }
+  },
+  "production": {
+    "username": "krasa",
+    "password": "Krasta123",
+    "database": "krasa",
+    "host": "193.85.203.188",
+    "dialect": "mssql",
+    "dialectOptions": {
+      "trustServerCertificate": true,
+      "enableArithAbort": true
+    }
+  }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+
+    <ul>
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Product</a>
+            <div class="dropdown-content">
+                <a href="/product-add">Add Product</a>
+                <a href="/products-list">Product List</a>
+            </div>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Category</a>
+            <div class="dropdown-content">
+                <a href="/category-add">Add Category</a>
+                <a href="/category-list">Category List</a>
+            </div>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Order</a>
+            <div class="dropdown-content">
+                <a href="/order-add">Add Order</a>
+                <a href="/user-list">User Order</a>
+                <!--                TODO: Add order list-->
+            </div>
+        </li>
+        <li><a href="/">Home</a></li>
+
+    </ul>
+
+
+    <main>
+        <div class="container">
+            <h2>Product List</h2>
+            <div id="message-container"></div>
+            <table id="product-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Allergens</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <h2>Edit Product</h2>
+                <form id="editForm">
+                    <label for="productName">Product Name:</label><br>
+                    <input type="text" id="productName" required><br>
+                    <label for="productPrice">Price:</label><br>
+                    <input type="number" id="productPrice" required><br>
+                    <label for="allergen-dropdown">Allergens:</label><br>
+                    <select id="allergen-dropdown" class="form-control">
+                    </select><br>
+                    <div id="selected-allergens" class="allergen-list">
+                    </div>
+                    <input type="hidden" id="productId">
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <script src="/script/product_list.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+
+</html>
