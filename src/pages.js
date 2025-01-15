@@ -22,5 +22,9 @@ function defineHTMLEndpoints(app){
         res.sendFile(projectPath + '/html' + '/product_list.html');
     });
 
+    app.get('/order-add', (req, res) => {
+        res.sendFile(projectPath + '/html' + '/order_add.html');
+    });
+
 }
 module.exports = {defineHTMLEndpoints};

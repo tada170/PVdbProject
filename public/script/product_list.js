@@ -25,8 +25,16 @@ async function fetchProductData() {
 
 function mapProducts(products) {
     const productMap = {};
+
     products.forEach(product => {
-        const { ProductID, Name, Price, AllergenName, AllergenID } = product;
+        const { ProductID, allergen, product: productDetails } = product;
+
+        const Name = productDetails?.Name;
+        const Price = productDetails?.Price;
+
+        const AllergenName = allergen?.Name;
+        const AllergenID = product.AllergenID;
+
         if (!productMap[ProductID]) {
             productMap[ProductID] = {
                 ProductID,
@@ -35,12 +43,16 @@ function mapProducts(products) {
                 Allergens: []
             };
         }
+
         if (AllergenName && AllergenID) {
             productMap[ProductID].Allergens.push({ name: AllergenName, id: AllergenID });
         }
     });
-    return productMap;
+
+    return Object.values(productMap);
 }
+
+
 
 function renderProductTable(productMap) {
     const tableBody = document.querySelector('#product-table tbody');

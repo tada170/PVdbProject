@@ -38,21 +38,16 @@ function saveOrder() {
     })
         .then(response => response.json())
         .then(data => {
-            if (data && data.TransakceID) {
-                currentOrderId = data.TransakceID; // Nastavení aktuálního ID objednávky
+                currentOrderId = data.TransactionID;
                 console.log("Vytvořená objednávka má ID:", currentOrderId);
                 openItemModal();
                 getOrders();
-            } else {
-                alert("Chyba při vytváření objednávky.");
-            }
         })
         .catch(error => {
             console.error("Chyba při vytváření objednávky:", error);
             alert("Chyba při vytváření objednávky.");
-        });
-
-    closeModal();
+        })
+        .finally(() => closeModal());
 }
 
 window.onclick = function (event) {
@@ -97,7 +92,7 @@ function handleCheckboxChange(event) {
 }
 
 function fetchOrders() {
-    return fetch('/order')
+    return fetch('/order_list')
         .then(response => response.json())
         .catch(() => []);
 }
@@ -138,25 +133,24 @@ function renderOrders(orders) {
 
 function groupOrders(data) {
     return data.reduce((acc, item) => {
-        const transakceID = item.TransakceID;
-        if (!acc[transakceID]) {
-            acc[transakceID] = {
-                TransakceID: transakceID,
-                Nazev: item.TransakceNazev || "Unknown Order",
-                UzivatelJmeno: item.UzivatelJmeno || "Unknown User",
-                DatumTransakce: item.DatumTransakce || "Unknown Date",
+        const TransactionID = item.TransactionID;
+        if (!acc[TransactionID]) {
+            acc[TransactionID] = {
+                TransactionID: TransactionID,
+                Name: item.TransakceNazev || "Unknown Order",
+                TransactionDate: item.DatumTransakce || "Unknown Date",
                 Items: []
             };
         }
         if (item.Items.length > 0) {
             item.Items.forEach(
-                item => acc[transakceID].Items.push({
-                ProduktID: item.ProduktID,
-                ProduktNazev: item.ProduktNazev || "Unnamed Product",
-                Mnozstvi: item.Mnozstvi || 0,
-                Cena: item.Cena || 0,
-                Zaplaceno: item.Zaplaceno || false,
-                Alergeny: item.Alergeny || []
+                item => acc[TransactionID].Items.push({
+                ProductID: item.ProduktID,
+                ProductName: item.ProduktNazev || "Unnamed Product",
+                Quantity: item.Mnozstvi || 0,
+                Price: item.Cena || 0,
+                Paid: item.Zaplaceno || false,
+                Allergens: item.Alergeny || []
             })
         )
         }
@@ -167,7 +161,7 @@ function renderOrderItems(order) {
     const itemList = document.createElement("div");
     itemList.className = "item-list";
     itemList.style.display = "none";
-    itemList.id = order.TransakceID;
+    itemList.id = order.TransactionID;
 
     if (!order.Items || order.Items.length === 0) {
         const noItemsMessage = document.createElement("p");
@@ -177,17 +171,17 @@ function renderOrderItems(order) {
         const productMap = new Map();
 
         order.Items.forEach(item => {
-            if (productMap.has(item.ProduktNazev)) {
-                productMap.set(item.ProduktNazev, productMap.get(item.ProduktNazev) + item.Mnozstvi);
+            if (productMap.has(item.ProductName)) {
+                productMap.set(item.ProductName, productMap.get(item.ProductName) + item.Quantity);
             } else {
-                productMap.set(item.ProduktNazev, item.Mnozstvi);
+                productMap.set(item.ProductName, item.Quantity);
             }
         });
         productMap.forEach((quantity, productName) => {
-            const item = order.Items.find(i => i.ProduktNazev === productName);
+            const item = order.Items.find(i => i.ProductName === productName);
             const itemDetail = document.createElement("p");
-            const allergens = item.Alergeny.length > 0 ? item.Alergeny.join(", ") : "None";
-            itemDetail.textContent = `${productName}: ${quantity}x ${item.Cena.toFixed(2)} EUR (Allergens: ${allergens})`;
+            const allergens = item.Allergens.length > 0 ? item.Allergens.join(", ") : "None";
+            itemDetail.textContent = `${productName}: ${quantity}x ${item.Price.toFixed(2)} EUR (Allergens: ${allergens})`;
             itemList.appendChild(itemDetail);
         });
 
@@ -210,24 +204,26 @@ function getOrders() {
             return groupOrders(data);
         })
         .then(orders => renderOrders(orders))
-        .catch(error => console.error('Error processing orders:', error));
+        .catch(error => {
+            console.error('Error processing orders:', error);
+        });
 }
 
 function getCategories() {
-    fetch('/categories')
+    fetch('/category_list')
         .then(response => response.json())
         .then(data => {
             categoryList.innerHTML = '';
             data.forEach(category => {
                 const categoryItem = document.createElement("div");
                 categoryItem.className = "category-item";
-                categoryItem.innerHTML = `<h2>${category.Nazev}</h2>`;
+                categoryItem.innerHTML = `<h2>${category.Name}</h2>`;
                 categoryList.appendChild(categoryItem);
                 categoryItem.onclick = () => {
                     productList.innerHTML = '';
                     categoryList.style.display = 'none';
                     productList.style.display = 'flex';
-                    getProducts(category.KategorieID);
+                    getProducts(category.CategoryID);
                 };
             });
         });
@@ -241,15 +237,15 @@ function getProducts(categoryId) {
             data.forEach(product => {
                 const productItem = document.createElement("div");
                 productItem.className = "product-item";
-                productItem.innerHTML = `<h3>${product.Nazev}</h3>`;
+                productItem.innerHTML = `<h3>${product.Name}</h3>`;
                 const price = document.createElement("p");
-                price.textContent = `Price: ${product.Cena} EUR`;
+                price.textContent = `Price: ${product.Price} EUR`;
                 productItem.appendChild(price);
 
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
-                checkbox.value = product.Cena;
-                checkbox.id = product.ProduktID;
+                checkbox.value = product.Price;
+                checkbox.id = product.ProductID;
                 checkbox.onchange = handleCheckboxChange;
 
                 productItem.appendChild(checkbox);

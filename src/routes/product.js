@@ -1,35 +1,31 @@
 const { Product } = require("../models");
 const { Allergen } = require("../models")
 const { ProductAllergen } = require("../models")
+
 function defineAPIProductEndpoints(app) {
     app.post("/product_add", async (req, res) => {
-        const { Name, Price, CategoryID, Allergens } = req.body;
-        console.log(Price)
+        const { Name, Price, CategoryID, Allergens = [] } = req.body;
+
+        const transaction = await sequelize.transaction();
+
         try {
-            const newProduct = await Product.create({
-                Name: Name,
-                Price: Price,
-                CategoryID: CategoryID,
-            });
-            console.log(Allergens)
+            const newProduct = await Product.create(
+                { Name, Price, CategoryID },
+                { transaction }
+            );
+
             if (Allergens.length > 0) {
                 const allergenData = Allergens.map((allergenID) => ({
                     ProductID: newProduct.ProductID,
                     AllergenID: allergenID,
                 }));
-                console.log(allergenData)
-                await ProductAllergen.bulkCreate(allergenData);
-            }
-            if (Allergens){
-                const allergenData = ({
-                    ProductID: newProduct.ProductID,
-                    AllergenID: 20,
-                });
-                await ProductAllergen.create(allergenData)
+                await ProductAllergen.bulkCreate(allergenData, { transaction });
             }
 
+            await transaction.commit();
             res.status(201).json({ message: "Product created successfully" });
         } catch (error) {
+            await transaction.rollback();
             console.error("Error creating product:", error);
             res.status(500).send("Error creating product");
         }
@@ -63,8 +59,8 @@ function defineAPIProductEndpoints(app) {
         }
     });
 
-    app.get("/product/:id", async (req, res) => {
-        const { categoryId } = req.params.id;
+    app.get("/products/:id", async (req, res) => {
+        const  categoryId  = req.params.id;
         try {
             const products = await Product.findAll({
                 where: { CategoryID: categoryId },
@@ -84,15 +80,22 @@ function defineAPIProductEndpoints(app) {
 
     app.delete("/product/:id", async (req, res) => {
         const id = req.params.id;
+        const transaction = await sequelize.transaction(); // Start a new transaction
+
         try {
-            const deleted = await Product.destroy({ where: { ProductID: id } });
+            await ProductAllergen.destroy({ where: { ProductID: id }, transaction });
+
+            const deleted = await Product.destroy({ where: { ProductID: id }, transaction });
 
             if (!deleted) {
                 return res.status(404).send("Product not found");
             }
 
+            await transaction.commit();
+
             res.sendStatus(204);
         } catch (error) {
+            await transaction.rollback();
             console.error("Error deleting product:", error);
             res.status(500).send("Error deleting product");
         }
@@ -120,7 +123,6 @@ function defineAPIProductEndpoints(app) {
                 }));
                 await ProductAllergen.bulkCreate(allergenData);
             }
-
             res.status(200).json({ message: "Product updated successfully" });
         } catch (error) {
             console.error("Error updating product:", error);
