@@ -1,12 +1,14 @@
-import {IDS as axios} from "mssql/lib/utils";
-
 let allergensList = [];
 
 async function loadCategories() {
     try {
-        const response = await axios.get('/category-list');
-        const categories = response.data;
+        const response = await fetch('/category_list');
+
+        const categories = await response.json();
+        console.log(categories);
+
         const categorySelect = document.getElementById('categoryID');
+        categorySelect.innerHTML = '';
 
         categories.forEach(category => {
             const optionHTML = `<option value="${category.CategoryID}">${category.Name}</option>`;
@@ -16,6 +18,7 @@ async function loadCategories() {
         console.error('Error loading categories:', error);
     }
 }
+
 
 async function loadAllergens() {
     try {
@@ -79,15 +82,15 @@ document.getElementById('productForm').addEventListener('submit', async function
     const allergens = Array.from(document.querySelectorAll('#selected-allergens .selected-allergen')).map(allergen => {
         const allergenName = allergen.textContent.slice(0, -1);
         const allergenObject = allergensList.find(a => a.Name === allergenName);
-        return allergenObject ? allergenObject.AllergenID : null;
-    }).filter(id => id !== null);
+        return allergenObject ? allergenObject.AllergenID : 20;
+    })
 
     try {
         const response = await axios.post('/product_add', {
-            Nazev: productName,
-            Cena: parseFloat(productPrice),
-            KategID: parseInt(categoryID),
-            Alergeny: allergens
+            Name: productName,
+            Price: parseFloat(productPrice),
+            CategoryID: parseInt(categoryID),
+            Allergens: allergens
         });
         console.log(response);
         document.getElementById('message').innerHTML = `<div class="alert alert-success">Product added successfully!</div>`;

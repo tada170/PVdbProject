@@ -8,36 +8,59 @@ async function fetchCategories() {
     const categories = await response.json();
     console.log(categories);
 
-    const tableBody = document.querySelector("#category-table tbody");
-    tableBody.innerHTML = "";
-
-    categories.forEach((category) => {
-      const row = document.createElement("tr");
-      const nameCell = document.createElement("td");
-      const actionsCell = document.createElement("td");
-
-      nameCell.textContent = category.Name;
-
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete";
-      deleteButton.className = "btn-delete";
-      deleteButton.onclick = () => deleteCategory(category.CategoryID);
-
-      const editButton = document.createElement("button");
-      editButton.textContent = "Edit";
-      editButton.className = "btn-edit";
-      editButton.onclick = () => openEditModal(category);
-
-      actionsCell.appendChild(deleteButton);
-      actionsCell.appendChild(editButton);
-      row.appendChild(nameCell);
-      row.appendChild(actionsCell);
-      tableBody.appendChild(row);
-    });
+    populateCategoryTable(categories);
   } catch (error) {
     displayMessage("Error fetching categories: " + error.message, "error");
   }
 }
+
+function populateCategoryTable(categories) {
+  const tableBody = document.querySelector("#category-table tbody");
+  tableBody.innerHTML = "";
+
+  categories.forEach((category) => {
+    const row = createCategoryRow(category);
+    tableBody.appendChild(row);
+  });
+}
+
+function createCategoryRow(category) {
+  const row = document.createElement("tr");
+  const nameCell = document.createElement("td");
+  const actionsCell = document.createElement("td");
+
+  nameCell.textContent = category.Name;
+
+  const deleteButton = createDeleteButton(category.CategoryID);
+  const editButton = createEditButton(category);
+
+  actionsCell.appendChild(deleteButton);
+  actionsCell.appendChild(editButton);
+
+  row.appendChild(nameCell);
+  row.appendChild(actionsCell);
+
+  return row;
+}
+
+function createDeleteButton(categoryID) {
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
+  deleteButton.className = "btn-delete";
+  deleteButton.onclick = () => deleteCategory(categoryID);
+
+  return deleteButton;
+}
+
+function createEditButton(category) {
+  const editButton = document.createElement("button");
+  editButton.textContent = "Edit";
+  editButton.className = "btn-edit";
+  editButton.onclick = () => openEditModal(category);
+
+  return editButton;
+}
+
 
 async function deleteCategory(categoryId) {
   if (confirm("Are you sure you want to delete this category?")) {
@@ -98,8 +121,7 @@ function displayMessage(message, type) {
   const messageContainer = document.getElementById("message-container");
   const messageDiv = document.createElement("div");
   messageDiv.textContent = message;
-  messageDiv.className =
-    "message " + (type === "success" ? "success" : "error");
+  messageDiv.className = "message " + (type === "success" ? "success" : "error");
   messageContainer.appendChild(messageDiv);
   setTimeout(() => {
     messageContainer.removeChild(messageDiv);

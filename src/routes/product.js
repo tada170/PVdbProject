@@ -1,22 +1,31 @@
 const { Product } = require("../models");
+const { Allergen } = require("../models")
 const { ProductAllergen } = require("../models")
 function defineAPIProductEndpoints(app) {
-    app.post("/products", async (req, res) => {
+    app.post("/product_add", async (req, res) => {
         const { Name, Price, CategoryID, Allergens } = req.body;
-
+        console.log(Price)
         try {
             const newProduct = await Product.create({
                 Name: Name,
                 Price: Price,
                 CategoryID: CategoryID,
             });
-
+            console.log(Allergens)
             if (Allergens.length > 0) {
                 const allergenData = Allergens.map((allergenID) => ({
                     ProductID: newProduct.ProductID,
                     AllergenID: allergenID,
                 }));
+                console.log(allergenData)
                 await ProductAllergen.bulkCreate(allergenData);
+            }
+            if (Allergens){
+                const allergenData = ({
+                    ProductID: newProduct.ProductID,
+                    AllergenID: 20,
+                });
+                await ProductAllergen.create(allergenData)
             }
 
             res.status(201).json({ message: "Product created successfully" });
@@ -28,10 +37,26 @@ function defineAPIProductEndpoints(app) {
 
     app.get("/product-list", async (req, res) => {
         try {
-            const products = await Product.findAll({
-                include: [{ model: ProductAllergen, as: 'allergens' }],
+            const productAllergens = await ProductAllergen.findAll({
+                include: [
+                    {
+                        model: Product,
+                        as: 'product',
+                        attributes: ['Name', 'Price'],
+                    },
+                    {
+                        model: Allergen,
+                        as: 'allergen',
+                        attributes: ['Name'],
+                    }
+                ]
             });
-            res.json(products);
+
+            productAllergens.forEach(productAllergen => {
+                console.log(`Product: ${productAllergen.product.Name}, Price: ${productAllergen.product.Price}`);
+                console.log(`  Allergen: ${productAllergen.allergen.Name}`);
+            });
+            res.json(productAllergens);
         } catch (error) {
             console.error("Error retrieving products:", error);
             res.status(500).send("Error retrieving products");
@@ -42,7 +67,7 @@ function defineAPIProductEndpoints(app) {
         const { categoryId } = req.params.id;
         try {
             const products = await Product.findAll({
-                where: { KategorieID: categoryId },
+                where: { CategoryID: categoryId },
                 include: [ProductAllergen],
             });
 
@@ -58,10 +83,8 @@ function defineAPIProductEndpoints(app) {
     });
 
     app.delete("/product/:id", async (req, res) => {
-        const { id } = req.params.id;
-
+        const id = req.params.id;
         try {
-            await ProductAllergen.destroy({ where: { ProductID: id } });
             const deleted = await Product.destroy({ where: { ProductID: id } });
 
             if (!deleted) {
@@ -75,8 +98,8 @@ function defineAPIProductEndpoints(app) {
         }
     });
 
-    app.put("/products/:id", async (req, res) => {
-        const { id } = req.params.id;
+    app.put("/product/:id", async (req, res) => {
+        const id  = req.params.id;
         const { Name, Price, Allergens } = req.body;
 
         try {

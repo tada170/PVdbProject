@@ -1,8 +1,8 @@
-const {Product} = require("../models");
+const {Allergen} = require("../models");
 
 function defineAPIAllergenEndpoints(app) {
     app.get('/allergens_list',(req, res) =>{
-        Product.findAll().then((products) => {
+        Allergen.findAll().then((products) => {
             res.send(products)
         }).catch((err) => {
             console.log(err)
