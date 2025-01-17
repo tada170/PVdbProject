@@ -35,7 +35,7 @@ function populateAllergenDropdown() {
     allergensDropdown.innerHTML = '<option value="">--Choose an allergen--</option>';
 
     allergensList.forEach(allergen => {
-        if(allergen.AllergenID  != 20) {
+        if(allergen.AllergenID  != 44) {
             const optionHTML = `<option value="${allergen.AllergenID}">${allergen.Name}</option>`;
             allergensDropdown.innerHTML += optionHTML;
         }
@@ -84,7 +84,7 @@ document.getElementById('productForm').addEventListener('submit', async function
     const allergens = Array.from(document.querySelectorAll('#selected-allergens .selected-allergen')).map(allergen => {
         const allergenName = allergen.textContent.slice(0, -1);
         const allergenObject = allergensList.find(a => a.Name === allergenName);
-        return allergenObject ? allergenObject.AllergenID : 20;
+        return allergenObject ? allergenObject.AllergenID : 44;
     })
 
     try {
