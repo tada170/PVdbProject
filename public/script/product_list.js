@@ -19,7 +19,6 @@ async function fetchProducts() {
 
 async function fetchProductData() {
     const response = await fetch('/product-list');
-
     return response.json();
 }
 
@@ -73,8 +72,7 @@ function createProductRow(product) {
     nameCell.textContent = product.Name;
     priceCell.textContent = product.Price;
     allergensCell.innerHTML = product.Allergens.length > 0
-        ? product.Allergens.map(allergen => `${allergen.name} <span class="allergen-icon" title="Edit" onclick="addAllergenToEdit('${allergen.name}')"></span>`).join(', ')
-        : 'No allergens';
+        ? product.Allergens.map(allergen => `${allergen.name} <span class="allergen-icon" title="Edit" onclick="addAllergenToEdit('${allergen.name}')"></span>`).join(', ') : 'No allergens';
 
     const deleteButton = createDeleteButton(product.ProductID);
     const editButton = createEditButton(product);
@@ -122,10 +120,12 @@ function populateAllergenDropdown() {
     const allergenDropdown = document.getElementById('allergen-dropdown');
     allergenDropdown.innerHTML = '<option value="">-- Choose an allergen --</option>';
     allergensList.forEach(allergen => {
-        const option = document.createElement('option');
-        option.value = allergen.AllergenID;
-        option.textContent = allergen.Name;
-        allergenDropdown.appendChild(option);
+        if (allergen.AllergenID != 20) {
+            const option = document.createElement('option');
+            option.value = allergen.AllergenID;
+            option.textContent = allergen.Name;
+            allergenDropdown.appendChild(option);
+        }
     });
     allergenDropdown.onchange = function () {
         const selectedOptions = Array.from(allergenDropdown.selectedOptions);
@@ -137,8 +137,10 @@ function populateAllergenDropdown() {
 }
 
 function addAllergenToEdit(allergen) {
-    if (allergen.AllergenID && allergen.Name && !selectedAllergens.find(a => a.id === allergen.AllergenID)) {
+    console.log(allergen)
+    if (!selectedAllergens.find(a => a.AllergenID == allergen.id) && !selectedAllergens.find(a => a.id == allergen.id)) {
         selectedAllergens.push(allergen);
+        console.log(selectedAllergens)
         renderSelectedAllergens();
     }
 }
@@ -147,22 +149,24 @@ function renderSelectedAllergens() {
     const selectedAllergenContainer = document.getElementById('selected-allergens');
     selectedAllergenContainer.innerHTML = '';
     selectedAllergens.forEach(allergen => {
-        if (allergen.Name) {
+        console.log(allergen)
+        if (allergen.Name || allergen.name) {
             const allergenItem = document.createElement('div');
             allergenItem.className = 'allergen-item';
-            allergenItem.textContent = allergen.Name;
+            allergenItem.textContent = allergen.Name || allergen.name;
             const removeButton = document.createElement('span');
             removeButton.className = 'remove-allergen';
             removeButton.textContent = '×';
-            removeButton.onclick = () => removeAllergen(allergen.AllergenID);
+            removeButton.onclick = () => removeAllergen(allergen);
             allergenItem.appendChild(removeButton);
             selectedAllergenContainer.appendChild(allergenItem);
         }
     });
 }
 
-function removeAllergen(allergenId) {
-    selectedAllergens = selectedAllergens.filter(a => a.id !== allergenId);
+function removeAllergen(allergen) {
+    selectedAllergens = selectedAllergens.filter(a => a.id !== allergen.id);
+    selectedAllergens = selectedAllergens.filter(a => a.AllergenID !== allergen.id);
     renderSelectedAllergens();
 }
 
@@ -174,9 +178,9 @@ function openEditModal(product) {
     initialAllergens = product.Allergens.map(allergen => ({
         AllergenID: allergen.id,
         Name: allergen.name
-    })).filter(allergen => allergen.id && allergen.name);
-
+    }))
     selectedAllergens = [...initialAllergens];
+
     renderSelectedAllergens();
     document.getElementById('editModal').style.display = 'block';
 }
@@ -204,8 +208,10 @@ document.getElementById('editForm').onsubmit = async function (event) {
     const productId = document.getElementById('productId').value;
     const productName = document.getElementById('productName').value;
     const productPrice = document.getElementById('productPrice').value;
-    const allergenIds = selectedAllergens.map(allergen => allergen.id).filter(id => id);
-
+    const allergenIds = selectedAllergens.map(allergen => allergen.id || allergen.AllergenID).filter(id => id);
+    if(allergenIds.length < 1){
+        allergenIds.push(20)
+    }
     try {
         await axios.put(`/product/${productId}`, {
             Name: productName,

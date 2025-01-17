@@ -13,7 +13,7 @@ function defineAPIOrderEndpoints(app) {
             );
 
             const transactions = new Map();
-            console.log(results)
+
             results.forEach(row => {
                 if (!transactions.has(row.TransactionID)) {
                     transactions.set(row.TransactionID, {
@@ -79,7 +79,7 @@ function defineAPIOrderEndpoints(app) {
                     TransactionID: orderId,
                     ProductID: item.productId,
                     Quantity: item.quantity,
-                    Price: item.price
+                    Price: item.price * item.quantity
                 });
 
                 if (item.allergens && item.allergens.length > 0) {

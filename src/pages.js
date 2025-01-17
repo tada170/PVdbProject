@@ -25,6 +25,9 @@ function defineHTMLEndpoints(app){
     app.get('/order-add', (req, res) => {
         res.sendFile(projectPath + '/html' + '/order_add.html');
     });
+    app.get('/report', (req, res) => {
+        res.sendFile(projectPath + '/html' + '/report_list.html');
+    });
 
 }
 module.exports = {defineHTMLEndpoints};

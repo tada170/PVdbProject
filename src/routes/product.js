@@ -1,6 +1,7 @@
 const { Product } = require("../models");
 const { Allergen } = require("../models")
 const { ProductAllergen } = require("../models")
+const {TransactionItems} = require("../models")
 
 const db = require('../models');
 const sequelize = db.sequelize;
@@ -122,6 +123,10 @@ function defineAPIProductEndpoints(app) {
             }
 
             await product.update({ Name: Name, Price: Price });
+            await TransactionItems.update(
+                { Price: Price },
+                { where: { ProductID: id } }
+            );
 
             await ProductAllergen.destroy({ where: { ProductID: id } });
 
