@@ -120,7 +120,7 @@ function populateAllergenDropdown() {
     const allergenDropdown = document.getElementById('allergen-dropdown');
     allergenDropdown.innerHTML = '<option value="">-- Choose an allergen --</option>';
     allergensList.forEach(allergen => {
-        if (allergen.AllergenID != 44) {
+        if (allergen.AllergenID != 59) {
             const option = document.createElement('option');
             option.value = allergen.AllergenID;
             option.textContent = allergen.Name;
@@ -210,7 +210,7 @@ document.getElementById('editForm').onsubmit = async function (event) {
     const productPrice = document.getElementById('productPrice').value;
     const allergenIds = selectedAllergens.map(allergen => allergen.id || allergen.AllergenID).filter(id => id);
     if(allergenIds.length < 1){
-        allergenIds.push(44)
+        allergenIds.push(59)
     }
     try {
         await axios.put(`/product/${productId}`, {

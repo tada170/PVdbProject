@@ -27,7 +27,7 @@ function defineAPIProductEndpoints(app) {
             }else{
                 await ProductAllergen.create({
                     ProductID: newProduct.ProductID,
-                    AllergenID: 44,
+                    AllergenID: 59,
                 }, { transaction });
             }
 
