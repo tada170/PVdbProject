@@ -35,8 +35,10 @@ function populateAllergenDropdown() {
     allergensDropdown.innerHTML = '<option value="">--Choose an allergen--</option>';
 
     allergensList.forEach(allergen => {
-        const optionHTML = `<option value="${allergen.AllergenID}">${allergen.Name}</option>`;
-        allergensDropdown.innerHTML += optionHTML;
+        if(allergen.AllergenID  != 20) {
+            const optionHTML = `<option value="${allergen.AllergenID}">${allergen.Name}</option>`;
+            allergensDropdown.innerHTML += optionHTML;
+        }
     });
 }
 

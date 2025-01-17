@@ -28,6 +28,9 @@ function defineHTMLEndpoints(app){
     app.get('/report', (req, res) => {
         res.sendFile(projectPath + '/html' + '/report_list.html');
     });
+    app.get('/import', (req, res) => {
+        res.sendFile(projectPath + '/html' + '/import.html');
+    });
 
 }
 module.exports = {defineHTMLEndpoints};

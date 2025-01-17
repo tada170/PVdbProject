@@ -40,7 +40,6 @@ function saveOrder() {
         .then(data => {
                 currentOrderId = data.TransactionID;
                 console.log("Vytvořená objednávka má ID:", currentOrderId);
-                openItemModal();
                 getOrders();
         })
         .catch(error => {

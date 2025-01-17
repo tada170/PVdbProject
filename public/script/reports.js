@@ -10,8 +10,6 @@ window.onload = async () => {
 
         const tbody = document.querySelector('#product-table tbody');
         tbody.innerHTML = '';
-        console.log(data)
-        console.log(data[0].TotalNumberOfProducts)
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${data[0].TotalNumberOfProducts || 'N/A'}</td>

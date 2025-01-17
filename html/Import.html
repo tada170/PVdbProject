@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import Transactions and Products</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+<ul>
+  <li class="dropdown">
+    <a href="#" class="dropbtn">Product</a>
+    <div class="dropdown-content">
+      <a href="/product-add">Add Product</a>
+      <a href="/products-list">Product List</a>
+    </div>
+  </li>
+
+  <li class="dropdown">
+    <a href="#" class="dropbtn">Category</a>
+    <div class="dropdown-content">
+      <a href="/category-add">Add Category</a>
+      <a href="/category-list">Category List</a>
+    </div>
+  </li>
+  <li class="dropdown">
+    <a href="#" class="dropbtn">Order</a>
+    <div class="dropdown-content">
+      <a href="/order-add">Add Order</a>
+    </div>
+  </li>
+  <li class="dropdown">
+    <a href="#" class="dropbtn">Report</a>
+    <div class="dropdown-content">
+      <a href="/report">Report</a>
+    </div>
+  </li>
+  <li class="dropdown">
+    <a href="#" class="dropbtn">Import</a>
+    <div class="dropdown-content">
+      <a href="/import">Import</a>
+    </div>
+  </li>
+  <li><a href="/">Home</a></li>
+</ul>
+
+<div class="container">
+  <h1>Import Transactions to Database</h1>
+  <form id="TuploadForm">
+    <div class="form-group">
+      <label for="TjsonFile">Select JSON File</label>
+      <input type="file" id="TjsonFile" accept=".json" />
+    </div>
+    <button type="submit" class="btn btn-primary">Upload and Import</button>
+  </form>
+
+  <div id="TsuccessMessage" class="alert alert-success" style="display:none;">Transactions have been successfully imported!</div>
+  <div id="TerrorMessage" class="alert alert-danger" style="display:none;">Error importing transactions. Please try again.</div>
+</div>
+
+<div class="container">
+  <h1>Import Category to Database</h1>
+  <form id="CuploadForm">
+    <div class="form-group">
+      <label for="CjsonFile">Select JSON File</label>
+      <input type="file" id="CjsonFile" accept=".json" />
+    </div>
+    <button type="submit" class="btn btn-primary">Upload and Import</button>
+  </form>
+
+  <div id="CsuccessMessage" class="alert alert-success" style="display:none;">Products have been successfully imported!</div>
+  <div id="CerrorMessage" class="alert alert-danger" style="display:none;">Error importing products. Please try again.</div>
+</div>
+
+<script src="/script/import.js"></script>
+</body>
+</html>
