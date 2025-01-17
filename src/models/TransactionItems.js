@@ -1,6 +1,6 @@
 const trace_events = require("node:trace_events");
 module.exports = (sequelize, DataTypes) => {
-    const TransactionItems = sequelize.define('TransactionItem', {
+    const TransactionItems = sequelize.define('TransactionItems', {
         TransactionItemID: {
             type: DataTypes.INTEGER,
             primaryKey: true,

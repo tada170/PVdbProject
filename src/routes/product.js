@@ -2,6 +2,9 @@ const { Product } = require("../models");
 const { Allergen } = require("../models")
 const { ProductAllergen } = require("../models")
 
+const db = require('../models');
+const sequelize = db.sequelize;
+
 function defineAPIProductEndpoints(app) {
     app.post("/product_add", async (req, res) => {
         const { Name, Price, CategoryID, Allergens = [] } = req.body;
@@ -20,6 +23,11 @@ function defineAPIProductEndpoints(app) {
                     AllergenID: allergenID,
                 }));
                 await ProductAllergen.bulkCreate(allergenData, { transaction });
+            }else{
+                await ProductAllergen.create({
+                    ProductID: newProduct.ProductID,
+                    AllergenID: 20,
+                }, { transaction });
             }
 
             await transaction.commit();
@@ -48,10 +56,6 @@ function defineAPIProductEndpoints(app) {
                 ]
             });
 
-            productAllergens.forEach(productAllergen => {
-                console.log(`Product: ${productAllergen.product.Name}, Price: ${productAllergen.product.Price}`);
-                console.log(`  Allergen: ${productAllergen.allergen.Name}`);
-            });
             res.json(productAllergens);
         } catch (error) {
             console.error("Error retrieving products:", error);
@@ -60,11 +64,16 @@ function defineAPIProductEndpoints(app) {
     });
 
     app.get("/products/:id", async (req, res) => {
-        const  categoryId  = req.params.id;
+        const categoryId = req.params.id;
         try {
             const products = await Product.findAll({
                 where: { CategoryID: categoryId },
-                include: [ProductAllergen],
+                include: [
+                    {
+                        model: ProductAllergen,
+                        as: 'allergens'
+                    },
+                ],
             });
 
             if (products.length === 0) {
@@ -80,7 +89,7 @@ function defineAPIProductEndpoints(app) {
 
     app.delete("/product/:id", async (req, res) => {
         const id = req.params.id;
-        const transaction = await sequelize.transaction(); // Start a new transaction
+        const transaction = await sequelize.transaction();
 
         try {
             await ProductAllergen.destroy({ where: { ProductID: id }, transaction });

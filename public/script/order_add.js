@@ -104,13 +104,13 @@ function renderOrders(orders) {
     Object.values(orders).forEach(order => {
         const orderItem = document.createElement("div");
         orderItem.className = "order-item";
-        orderItem.dataset.transakceId = order.TransakceID;
+        orderItem.dataset.transakceId = order.TransactionID;
 
         const titleContainer = document.createElement("div");
         titleContainer.className = "title-container";
 
         const orderTitle = document.createElement("span");
-        orderTitle.textContent = `Order: ${order.Nazev} (${order.DatumTransakce})`;
+        orderTitle.textContent = `Order: ${order.Name} (${order.TransactionDate})`;
 
         const dropDown = document.createElement("span");
         dropDown.className = "drop-down-btn";
@@ -130,27 +130,26 @@ function renderOrders(orders) {
     });
 }
 
-
 function groupOrders(data) {
     return data.reduce((acc, item) => {
         const TransactionID = item.TransactionID;
         if (!acc[TransactionID]) {
             acc[TransactionID] = {
                 TransactionID: TransactionID,
-                Name: item.TransakceNazev || "Unknown Order",
-                TransactionDate: item.DatumTransakce || "Unknown Date",
+                Name: item.TransactionName || "Unknown Order",
+                TransactionDate: item.TransactionDate || "Unknown Date",
                 Items: []
             };
         }
         if (item.Items.length > 0) {
             item.Items.forEach(
                 item => acc[TransactionID].Items.push({
-                ProductID: item.ProduktID,
-                ProductName: item.ProduktNazev || "Unnamed Product",
-                Quantity: item.Mnozstvi || 0,
-                Price: item.Cena || 0,
-                Paid: item.Zaplaceno || false,
-                Allergens: item.Alergeny || []
+                ProductID: item.ProductID,
+                ProductName: item.ProductName || "Unnamed Product",
+                Quantity: item.Quantity || 0,
+                Price: item.Price || 0,
+                Paid: item.Paid || false,
+                Allergens: item.Allergens || []
             })
         )
         }
@@ -201,6 +200,7 @@ function renderOrderItems(order) {
 function getOrders() {
     fetchOrders()
         .then(data => {
+
             return groupOrders(data);
         })
         .then(orders => renderOrders(orders))

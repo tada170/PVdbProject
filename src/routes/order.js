@@ -1,26 +1,50 @@
-const { Transactions,TransactionDetail } = require("../models")
+const { Transactions,TransactionItems } = require("../models")
+
+const db = require('../models');
+const sequelize = db.sequelize;
+
 function defineAPIOrderEndpoints(app) {
     app.get("/order_list", async (req, res) => {
         console.log("GET /order request received");
 
         try {
-            const transactions = await TransactionDetail.findAll();
+            const [results, metadata] = await sequelize.query(
+                'select * from TransactionDetails'
+            );
 
-            const result = transactions.map(transaction => {
-                return {
-                    TransactionID: transaction.TransactionID,
-                    TransactionName: transaction.TransactionName,
-                    TransactionDate: transaction.TransactionDate,
-                    TransactionItemID: transaction.TransactionItemID,
-                    ProductID: transaction.ProductID,
-                    ProductName: transaction.ProductName,
-                    Quantity: transaction.Quantity,
-                    Price: transaction.Price,
-                    Paid: transaction.Paid,
-                    AllergenName: transaction.AllergenName,
-                };
+            const transactions = new Map();
+            console.log(results)
+            results.forEach(row => {
+                if (!transactions.has(row.TransactionID)) {
+                    transactions.set(row.TransactionID, {
+                        TransactionID: row.TransactionID,
+                        TransactionName: row.TransactionName,
+                        TransactionDate: row.TransactionDate,
+                        Items: []
+                    });
+                }
+
+                if (row.TransactionItemID) {
+                    const item = {
+                        TransactionItemID: row.TransactionItemID,
+                        ProductID: row.ProductID,
+                        ProductName: row.ProductName,
+                        Quantity: row.Quantity,
+                        Price: row.Price,
+                        Paid: row.Paid,
+                        Allergens: row.AllergenName ? [row.AllergenName] : []
+                    };
+
+                    const existingItem = transactions.get(row.TransactionID).Items.find(i => i.TransactionItemID === row.TransactionItemID);
+                    if (existingItem) {
+                        if (row.AllergenName) existingItem.Allergens.push(row.AllergenName);
+                    } else {
+                        transactions.get(row.TransactionID).Items.push(item);
+                    }
+                }
             });
-            res.status(201).json({ message: "Transaction created successfully" });
+
+            res.json([...transactions.values()]);
         } catch (err) {
             console.error("Error retrieving orders:", err);
             res.status(500).send("Error retrieving orders");
@@ -45,30 +69,30 @@ function defineAPIOrderEndpoints(app) {
     });
 
 
-    // app.post('/order-save/:id', async (req, res) => {
-    //     const orderId = req.params.id;
-    //     const items = req.body;
-    //
-    //     try {
-    //         await Promise.all(items.map(async (item) => {
-    //             const newItem = await TransactionItem.create({
-    //                 TransactionID: orderId,
-    //                 ProductID: item.productId,
-    //                 quantity: item.quantity,
-    //                 Price: item.price
-    //             });
-    //
-    //             if (item.allergens && item.allergens.length > 0) {
-    //                 await newItem.setAllergens(item.allergens);
-    //             }
-    //         }));
-    //
-    //         res.status(200).json({ message: "Order updated successfully" });
-    //     } catch (err) {
-    //         console.error("Error updating order:", err);
-    //         res.status(500).json({ error: "Error updating order" });
-    //     }
-    // });
+    app.post('/order-save/:id', async (req, res) => {
+        const orderId = req.params.id;
+        const items = req.body;
+
+        try {
+            await Promise.all(items.map(async (item) => {
+                const newItem = await TransactionItems.create({
+                    TransactionID: orderId,
+                    ProductID: item.productId,
+                    Quantity: item.quantity,
+                    Price: item.price
+                });
+
+                if (item.allergens && item.allergens.length > 0) {
+                    await newItem.setAllergens(item.allergens);
+                }
+            }));
+
+            res.status(200).json({ message: "Order adding successfully" });
+        } catch (err) {
+            console.error("Error adding order:", err);
+            res.status(500).json({ error: "Error adding order" });
+        }
+    });
 }
 
 module.exports = { defineAPIOrderEndpoints };
